@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. This is the only place colors are defined.
+ * Light theme lives on :root, dark overrides via [data-theme="dark"]
+ * (set on <html> by next-themes).
+ *
+ * Palette decisions (see docs/DECISIONS.md):
+ * - AWS orange leads. Darkened in light mode for contrast.
+ * - SFSU purple tints the dark canvas and serves as the secondary accent.
+ *   To drop the purple nod entirely, change --bg (dark) and --accent-2.
+ */
+:root {
+  --bg: #fcfcfa;
+  --surface: #f3f2ee;
+  --ink: #1b1520;
+  --muted: #5e5668;
+  --accent: #e88b00;
+  --accent-ink: #1b1520; /* text on top of accent fills */
+  --accent-2: #52247f;
+  --line: rgba(27, 21, 32, 0.14);
+  --line-strong: rgba(27, 21, 32, 0.32);
+}
+
+[data-theme="dark"] {
+  --bg: #191223;
+  --surface: #221a30;
+  --ink: #f2efea;
+  --muted: #a99fb8;
+  --accent: #ff9900;
+  --accent-ink: #1b1520;
+  --accent-2: #a78bc8;
+  --line: rgba(242, 239, 234, 0.14);
+  --line-strong: rgba(242, 239, 234, 0.3);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-2: var(--accent-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* One easing curve for everything animated. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * Named type scale. The display sizes are tokens, same discipline as the
+ * colors above: sections reference these by name instead of repeating
+ * arbitrary values. Font weight stays a separate font-* class on the
+ * element.
+ *
+ * - text-poster      hero headline
+ * - text-poster-sm   Join finale headline
+ * - text-statement   recurring section h2 (About, Perks, Team)
+ */
+@utility text-poster {
+  font-size: clamp(2.8rem, 8.6vw, 7.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+@utility text-poster-sm {
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+@utility text-statement {
+  font-size: 1.7rem;
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tight);
+
+  @media (width >= theme(--breakpoint-sm)) {
+    font-size: 2.4rem;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Lets <details> heights transition where supported (Chrome 129+). */
+  interpolate-size: allow-keywords;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* On orange fills, an orange focus ring would vanish. */
+.on-accent :focus-visible {
+  outline-color: var(--accent-ink);
+}
+
+/* Anchored sections shouldn't hide under the sticky header. */
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+/*
+ * FAQ open/close animation. Progressive enhancement: browsers without
+ * ::details-content or interpolate-size just snap open, which is fine.
+ */
+details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.35s var(--ease-out-soft),
+    content-visibility 0.35s;
+  transition-behavior: allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  details::details-content {
+    transition: none;
+  }
+}
